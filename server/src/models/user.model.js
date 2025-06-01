@@ -44,6 +44,8 @@ const UserSchema = mongoose.Schema(
         ref: "Comment",
       },
     ],
+    accessToken: String,
+    refreshToken: String,
   },
   {
     timestamps: true,
