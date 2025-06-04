@@ -1,6 +1,9 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
+import { useLoginMutation } from "../../redux/auth/authApi";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../redux/auth/authSlice";
 
 type Inputs = {
   email: string;
@@ -9,7 +12,23 @@ type Inputs = {
 
 export default function Login() {
   const { register, handleSubmit } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const [login, { isLoading, error }] = useLoginMutation();
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      const response = await login(data).unwrap();
+      dispatch(setUser(response.user));
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1000);
+    } catch (e) {
+      console.error("Login failed:", e);
+    }
+  };
 
   return (
     <div className="font-primary min-h-screen flex items-center justify-center px-4">
@@ -49,11 +68,26 @@ export default function Login() {
               {...register("password", { required: true })}
             />
           </div>
+
+          {isLoading && (
+            <p className="flex text-red-500 text-sm text-center mt-2 font-primary">
+              Logging in...
+            </p>
+          )}
+
+          {error && (
+            <p className="flex text-red-500 text-sm text-center mt-2 font-primary">
+              {(error as any)?.data?.message ||
+                "Login failed. Please try again."}
+            </p>
+          )}
+
           <button
             type="submit"
             className="w-full bg-white text-black font-semibold py-2 rounded-md hover:bg-gray-200 transition"
+            disabled={isLoading}
           >
-            Sign In
+            {isLoading ? "Logging in..." : "Sign In"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-500">

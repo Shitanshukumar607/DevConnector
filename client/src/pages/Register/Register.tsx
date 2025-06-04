@@ -1,16 +1,32 @@
-import { Link } from "react-router";
-import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
+import { useRegisterMutation } from "../../redux/auth/authApi";
 
 type Inputs = {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
 };
 
 export default function Register() {
   const { register, handleSubmit } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const [registerUser, { isLoading, error }] = useRegisterMutation();
+
+  const navigate = useNavigate();
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      await registerUser(data).unwrap();
+      // console.log("Registration successful!");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+    } catch (e) {
+      console.error("Sign up failed:", e);
+    }
+  };
 
   return (
     <div className="font-primary min-h-screen flex items-center justify-center px-4">
@@ -32,7 +48,7 @@ export default function Register() {
               placeholder="John Doe"
               autoComplete="name"
               className="font-secondary w-full px-4 py-2 bg-[#1a1a1a] text-white border border-[#2a2a2a] rounded-md focus:outline-none focus:ring-2 focus:ring-white"
-              {...register("name", { required: true })}
+              {...register("fullName", { required: true })}
             />
           </div>
           <div>
@@ -67,11 +83,25 @@ export default function Register() {
               {...register("password", { required: true })}
             />
           </div>
+
+          {isLoading && (
+            <p className="flex text-red-500 text-sm text-center mt-2 font-primary">
+              Signing up...
+            </p>
+          )}
+
+          {error && (
+            <p className="flex text-red-500 text-sm text-center mt-2 font-primary">
+              {(error as any)?.data?.message ||
+                "Sign up failed. Please try again."}
+            </p>
+          )}
           <button
             type="submit"
             className="w-full bg-white text-black font-semibold py-2 rounded-md hover:bg-gray-200 transition"
+            disabled={isLoading}
           >
-            Register
+            {isLoading ? "Signing up..." : "Register"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-500">
