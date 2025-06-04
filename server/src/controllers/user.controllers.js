@@ -75,15 +75,18 @@ const loginUser = async (req, res) => {
       });
     }
 
-    const refreshToken = jwt.sign(
-      { ...user },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
+    const payload = {
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      username: user.username,
+    };
 
-    const accessToken = jwt.sign({ ...user }, process.env.ACCESS_TOKEN_SECRET, {
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+      expiresIn: "7d",
+    });
+
+    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "15m",
     });
 
