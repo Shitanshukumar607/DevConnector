@@ -1,18 +1,31 @@
 import { Router } from "express";
-import { createAPost, getAllPosts } from "../controllers/post.controller.js";
+import {
+  createAPost,
+  deletePost,
+  getAllPosts,
+  getPostById,
+  updatePost,
+} from "../controllers/post.controller.js";
+import verifyJWT from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
 // GET    /api/v1/posts       → getAllPosts
+// POST   /api/v1/posts           → createPost
 
-router.route("/").get(getAllPosts).post(createAPost);
+router.route("/").get(getAllPosts).post(verifyJWT, createAPost);
+
+router
+  .route("/:id")
+  .get(getPostById)
+  .put(verifyJWT, updatePost)
+  .delete(verifyJWT, deletePost);
 
 // GET    /api/v1/posts/:id       → getPostById
 // GET    /api/v1/posts/user/:id  → getAllPostsByUserId
 // GET    /api/v1/posts/liked/:id → getAllPostsLikedByUserId
 // GET    /api/v1/posts/search    → searchPostsByKeyword
 
-// POST   /api/v1/posts           → createPost
 // PUT    /api/v1/posts/:id      → updatePost
 // DELETE /api/v1/posts/:id      → deletePost
 
