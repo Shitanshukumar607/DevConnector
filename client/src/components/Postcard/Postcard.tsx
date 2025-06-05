@@ -1,5 +1,6 @@
 import PostHeader from "./PostHeader";
 import PostFooter from "./PostFooter";
+import { useNavigate } from "react-router";
 
 type User = {
   _id: string;
@@ -7,6 +8,7 @@ type User = {
 };
 
 type PostCardProps = {
+  _id: string;
   title: string;
   description: string;
   createdAt: string;
@@ -16,8 +18,17 @@ type PostCardProps = {
 };
 
 export default function PostCard({ post }: { post: PostCardProps }) {
+  const Navigate = useNavigate();
+
+  const handleClick = () => {
+    Navigate(`/posts/${post._id}`);
+  };
+
   return (
-    <article className="w-full max-w-4xl bg-[#111111] rounded-2xl p-5 shadow-lg text-white mx-auto mt-6">
+    <article
+      className="w-full max-w-4xl bg-[#111111] rounded-2xl p-5 shadow-lg text-white mx-auto mt-6"
+      onClick={handleClick}
+    >
       <PostHeader user={post.user} createdAt={post.createdAt} />
 
       <h2 className="flex flex-start text-lg font-semibold mb-2 text-start">
