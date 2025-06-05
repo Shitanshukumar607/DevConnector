@@ -1,12 +1,4 @@
-import {
-  Bell,
-  MessageCircle,
-  Plus,
-  User,
-  ThumbsUp,
-  ThumbsDown,
-  Share2,
-} from "lucide-react";
+import { MessageCircle, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
 
 export default function PostCard() {
   return (
