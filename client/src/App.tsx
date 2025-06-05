@@ -1,9 +1,14 @@
 import "./App.css";
+import Navbar from "./components/Navbar/Navbar";
+import { Outlet } from "react-router";
 
 function App() {
   return (
     <>
-      <p className="text-3xl font-bold underline">Hello World!</p>
+      <Navbar />
+      <main>
+        <Outlet />
+      </main>
     </>
   );
 }
