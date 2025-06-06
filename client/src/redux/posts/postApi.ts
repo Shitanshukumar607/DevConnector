@@ -14,6 +14,10 @@ export const postApi = createApi({
       query: () => "",
     }),
 
+    getPostById: builder.query({
+      query: (id: string) => `${id}`,
+    }),
+
     createPost: builder.mutation({
       query: (data: { title: string; description: string }) => ({
         url: "",
@@ -41,6 +45,7 @@ export const postApi = createApi({
 
 export const {
   useGetPostsQuery,
+  useGetPostByIdQuery,
   useCreatePostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
