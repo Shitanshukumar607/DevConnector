@@ -1,17 +1,17 @@
 import { formatDistanceToNowStrict } from "date-fns";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 
-// type CommentType = {
-//   user: {
-//     _id: string;
-//     username: string;
-//   };
-//   createdAt: string;
-//   updatedAt: string;
-//   text: string;
-//   likes: string[];
-//   dislikes: string[];
-// };
+type CommentType = {
+  user: {
+    _id: string;
+    username: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  text: string;
+  likes: string[];
+  dislikes: string[];
+};
 
 // createdAt: "2025-06-06T16:11:17.777Z";
 // dislikes: [];
@@ -22,8 +22,8 @@ import { ThumbsDown, ThumbsUp } from "lucide-react";
 // __v: 0;
 // _id: "68431325069acaa2cb092565";
 
-const Comment = ({ comment: commentData }: { comment: any }) => {
-  console.log("Comment Data:", commentData);
+const Comment = ({ comment: commentData }: { comment: CommentType }) => {
+//   console.log("Comment Data:", commentData);
 
   const dateFromNow: string = formatDistanceToNowStrict(
     commentData?.updatedAt,

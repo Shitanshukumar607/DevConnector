@@ -2,14 +2,15 @@ import { MessageSquare } from "lucide-react";
 import Comment from "./Comment";
 
 type CommentType = {
-  id: number;
-  user: string;
-  text: string;
-  time: string;
-  likes: number;
+  user: {
+    _id: string;
+    username: string;
+  };
   createdAt: string;
   updatedAt: string;
-  dislikes: number[];
+  text: string;
+  likes: string[];
+  dislikes: string[];
 };
 
 type PostData = {
@@ -37,7 +38,7 @@ type PostData = {
 // }
 
 const CommentSection = ({ postData }: { postData: PostData }) => {
-    console.log("Post Data in CommentSection:", postData);
+//   console.log("Post Data in CommentSection:", postData);
 
   //   console.log(postData?.comments?.length, "comments length");
 
@@ -73,8 +74,8 @@ const CommentSection = ({ postData }: { postData: PostData }) => {
         <div className="space-y-6">
           {postData.comments.length === 0
             ? "No comments yet."
-            : postData.comments.map((comment) => (
-                <Comment key={comment.id} comment={comment} />
+            : postData.comments.map((comment, idx) => (
+                <Comment key={idx} comment={comment} />
               ))}
         </div>
       </div>
