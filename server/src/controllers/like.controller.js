@@ -14,9 +14,16 @@ const likePost = async (req, res) => {
     }
 
     if (post.likes.includes(req.user._id)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Post already liked" });
+      post.likes = post.likes.filter(
+        (userId) => userId.toString() !== req.user._id.toString()
+      );
+      await post.save();
+
+      return res.status(200).json({
+        success: true,
+        message: "Post un-liked successfully",
+        likedStatus: false,
+      });
     }
 
     if (post.dislikes.includes(req.user._id)) {
@@ -28,14 +35,10 @@ const likePost = async (req, res) => {
     post.likes.push(req.user._id);
     await post.save();
 
-    const populatedPost = await post.populate("user");
-
-    console.log("populated Post is ", populatedPost);
-
     return res.status(200).json({
       success: true,
       message: "Post liked successfully",
-      data: populatedPost,
+      likedStatus: true,
     });
   } catch (error) {
     console.error("Error liking post:", error);
@@ -58,9 +61,15 @@ const dislikePost = async (req, res) => {
     }
 
     if (post.dislikes.includes(req.user._id)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Post already disliked" });
+      post.dislikes = post.dislikes.filter(
+        (userId) => userId.toString() !== req.user._id.toString()
+      );
+      await post.save();
+      return res.status(200).json({
+        success: true,
+        message: "Post un-disliked successfully",
+        dislikedStatus: false,
+      });
     }
 
     if (post.likes.includes(req.user._id)) {
@@ -72,12 +81,10 @@ const dislikePost = async (req, res) => {
     post.dislikes.push(req.user._id);
     await post.save();
 
-    const populatedPost = await post.populate("user", "username _id");
-
     return res.status(200).json({
       success: true,
       message: "Post disliked successfully",
-      data: populatedPost,
+      dislikedStatus: true,
     });
   } catch (error) {
     console.error("Error disliking post:", error);

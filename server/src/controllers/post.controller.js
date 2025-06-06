@@ -1,4 +1,5 @@
 import Post from "../models/post.model.js";
+import jwt from "jsonwebtoken";
 
 const getAllPosts = async (req, res) => {
   try {
@@ -64,10 +65,34 @@ const getPostById = async (req, res) => {
         .json({ success: false, message: "Post not found" });
     }
 
+    const token =
+      req.cookies?.accessToken ||
+      req.header("Authorization")?.replace("Bearer ", "");
+
+    let isLikedByUser = false;
+    let isDislikedByUser = false;
+
+    if (token) {
+      try {
+        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        // console.log("Decoded Token:", decodedToken);
+        isLikedByUser = post.likes.some(
+          (userId) => userId.toString() === decodedToken._id
+        );
+        isDislikedByUser = post.dislikes.some(
+          (userId) => userId.toString() === decodedToken._id
+        );
+      } catch (err) {
+        console.warn("Token verification failed:", err.message);
+      }
+    }
+
+    // console.log(isLikedByUser);
+
     return res.status(200).json({
       success: true,
       message: "Post fetched successfully",
-      data: post,
+      data: { ...post.toObject(), isLikedByUser, isDislikedByUser },
     });
   } catch (error) {
     console.error("Error fetching post by ID:", error);
