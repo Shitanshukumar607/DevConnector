@@ -4,14 +4,17 @@ import Navbar from "./components/Navbar/Navbar";
 import { Outlet } from "react-router";
 import { useGetUserQuery } from "./redux/auth/authApi";
 import { setUser } from "./redux/auth/authSlice";
+import { useEffect } from "react";
 
 function App() {
   const dispatch = useDispatch();
-  const { data } = useGetUserQuery({});
+  const { data, isSuccess } = useGetUserQuery({});
 
-  if (data) {
-    dispatch(setUser(data.user));
-  }
+  useEffect(() => {
+    if (isSuccess && data?.user) {
+      dispatch(setUser(data.user));
+    }
+  }, [isSuccess, data]);
 
   return (
     <>

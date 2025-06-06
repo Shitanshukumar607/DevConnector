@@ -120,10 +120,44 @@ const loginUser = async (req, res) => {
 };
 
 const getUserData = async (req, res) => {
-  res.status(200).json({
-    success: true,
-    user: req.user,
-  });
+  const token =
+    req.cookies?.accessToken ||
+    req.header("Authorization")?.replace("Bearer ", "");
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized request",
+    });
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(decodedToken?._id).select(
+      "-password -refreshToken"
+    );
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid access token",
+      });
+    }
+
+    req.user = user;
+    return res.status(200).json({
+      success: true,
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        username: user.username,
+      },
+    });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: error?.message || "Invalid access token",
+    });
+  }
 };
 
 export { registerUser, loginUser, getUserData };
