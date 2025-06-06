@@ -51,7 +51,12 @@ const getPostById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const post = await Post.findById(id).populate("user", "_id username");
+    const post = await Post.findById(id)
+      .populate("user")
+      .populate({
+        path: "comments",
+        populate: { path: "user", select: "_id username" },
+      });
 
     if (!post) {
       return res

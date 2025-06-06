@@ -1,14 +1,19 @@
 import { MessageSquare } from "lucide-react";
 import Comment from "./Comment";
 
+type CommentType = {
+  id: number;
+  user: string;
+  text: string;
+  time: string;
+  likes: number;
+  createdAt: string;
+  updatedAt: string;
+  dislikes: number[];
+};
+
 type PostData = {
-  comments: {
-    id: number;
-    user: string;
-    text: string;
-    time: string;
-    likes: number;
-  }[];
+  comments: CommentType[];
 };
 
 // {
