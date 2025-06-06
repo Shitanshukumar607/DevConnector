@@ -4,3 +4,18 @@
   --font-primary: "Geist", sans-serif;
   --font-secondary: "Geist Mono", monospace;
 }
+
+@keyframes pop {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pop {
+  animation: pop 0.15s ease-out;
+}
