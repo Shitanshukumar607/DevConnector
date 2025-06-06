@@ -1,7 +1,10 @@
-import { Bell, MessageSquare, Plus } from "lucide-react";
-import fullIcon from "/full-icon.png"
+import { Bell, MessageSquare, Plus, UserRoundIcon } from "lucide-react";
+import fullIcon from "/full-icon.png";
+import { useSelector } from "react-redux";
 
 export default function Navbar() {
+  const user = useSelector((state: any) => state.auth.user);
+
   return (
     <nav className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1a1a1a]">
       <div className="mx-auto px-4 py-3 flex items-center justify-between gap-4">
@@ -39,8 +42,12 @@ export default function Navbar() {
           </button>
 
           {/* Avatar */}
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-sm font-bold text-white">
-            U
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-sm font-bold text-white font-primary">
+            {user?.username ? (
+              user.username.charAt(0).toUpperCase()
+            ) : (
+              <UserRoundIcon />
+            )}
           </div>
         </div>
       </div>
