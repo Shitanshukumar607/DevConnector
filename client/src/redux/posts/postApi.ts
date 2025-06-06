@@ -9,13 +9,17 @@ export const postApi = createApi({
     credentials: "include",
   }),
 
+  tagTypes: ["Post"],
+
   endpoints: (builder) => ({
     getPosts: builder.query({
       query: () => "",
+      providesTags: ["Post"],
     }),
 
     getPostById: builder.query({
       query: (id: string) => `${id}`,
+      providesTags: ["Post"],
     }),
 
     createPost: builder.mutation({
@@ -24,6 +28,7 @@ export const postApi = createApi({
         method: "POST",
         body: data,
       }),
+      invalidatesTags: ["Post"],
     }),
 
     updatePost: builder.mutation({
@@ -32,6 +37,7 @@ export const postApi = createApi({
         method: "PUT",
         body: data,
       }),
+      invalidatesTags: ["Post"],
     }),
 
     deletePost: builder.mutation({
@@ -39,6 +45,23 @@ export const postApi = createApi({
         url: `${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Post"],
+    }),
+
+    likePost: builder.mutation({
+      query: (id: string) => ({
+        url: `${id}/like`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Post"],
+    }),
+
+    dislikePost: builder.mutation({
+      query: (id: string) => ({
+        url: `${id}/dislike`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Post"],
     }),
   }),
 });
@@ -49,4 +72,6 @@ export const {
   useCreatePostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useLikePostMutation,
+  useDislikePostMutation,
 } = postApi;
