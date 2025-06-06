@@ -17,10 +17,14 @@ const PostSchema = new mongoose.Schema(
     },
     likes: [
       {
-        user: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    dislikes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
     comments: [
