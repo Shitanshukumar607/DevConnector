@@ -5,7 +5,7 @@ export const postApi = createApi({
   reducerPath: "postApi",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: `${baseUrl}/posts/`,
+    baseUrl: `${baseUrl}/posts`,
     credentials: "include",
   }),
 
@@ -18,7 +18,7 @@ export const postApi = createApi({
     }),
 
     getPostById: builder.query({
-      query: (id: string) => `${id}`,
+      query: (id: string) => `/${id}`,
       providesTags: ["Post"],
     }),
 
@@ -33,7 +33,7 @@ export const postApi = createApi({
 
     updatePost: builder.mutation({
       query: (data: { id: string; title: string; description: string }) => ({
-        url: `${data.id}`,
+        url: `/${data.id}`,
         method: "PUT",
         body: data,
       }),
@@ -42,7 +42,7 @@ export const postApi = createApi({
 
     deletePost: builder.mutation({
       query: (id: string) => ({
-        url: `${id}`,
+        url: `/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["Post"],
@@ -50,7 +50,7 @@ export const postApi = createApi({
 
     likePost: builder.mutation({
       query: (id: string) => ({
-        url: `${id}/like`,
+        url: `/${id}/like`,
         method: "POST",
       }),
       invalidatesTags: ["Post"],
@@ -58,7 +58,7 @@ export const postApi = createApi({
 
     dislikePost: builder.mutation({
       query: (id: string) => ({
-        url: `${id}/dislike`,
+        url: `/${id}/dislike`,
         method: "POST",
       }),
       invalidatesTags: ["Post"],
