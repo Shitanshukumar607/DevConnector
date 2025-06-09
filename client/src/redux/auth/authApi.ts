@@ -44,7 +44,7 @@ export const authApi = createApi({
       }),
     }),
 
-    refreshAccessToken: builder.query({
+    refreshAccessToken: builder.query<any, void>({
       query: () => "refreshAccessToken",
     }),
   }),

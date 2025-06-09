@@ -79,6 +79,7 @@ export default function Post() {
       console.error("Error liking post:", err);
 
       const refreshed = await refreshAccessToken();
+      console.log(`Refreshed access token: ${refreshed}`);
 
       if (refreshed) {
         try {
@@ -110,6 +111,8 @@ export default function Post() {
     } catch (err) {
       console.error("Error disliking post:", err);
       const refreshed = await refreshAccessToken();
+
+      console.log(`Refreshed access token: ${refreshed}`);
 
       if (refreshed) {
         try {

@@ -35,6 +35,8 @@ const likePost = async (req, res) => {
     post.likes.push(req.user._id);
     await post.save();
 
+    console.log("Post liked by user:", req.user._id);
+
     return res.status(200).json({
       success: true,
       message: "Post liked successfully",
