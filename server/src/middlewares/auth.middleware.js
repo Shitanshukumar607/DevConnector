@@ -7,7 +7,13 @@ const verifyJWT = async (req, res, next) => {
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
 
-    // console.log(token);
+    console.log("request cookies:", req.cookies);
+    console.log("Authorization header:", req.header("Authorization"));
+    console.log("Access token:", req.cookies?.accessToken);
+    console.log("Refresh token:", req.cookies?.refreshToken);
+
+    console.log("Access token:", token);
+
     if (!token) {
       return res.status(401).json({
         success: false,

@@ -16,14 +16,14 @@ export const authApi = createApi({
   reducerPath: "authApi",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: `${baseUrl}/users/`,
+    baseUrl: `${baseUrl}/users`,
     credentials: "include",
   }),
 
   endpoints: (builder) => ({
     register: builder.mutation({
       query: (data: RegisterData) => ({
-        url: "register",
+        url: "/register",
         method: "POST",
         body: data,
       }),
@@ -31,7 +31,7 @@ export const authApi = createApi({
 
     login: builder.mutation({
       query: (data: LoginData) => ({
-        url: "login",
+        url: "/login",
         method: "POST",
         body: data,
       }),
@@ -39,13 +39,13 @@ export const authApi = createApi({
 
     getUser: builder.query({
       query: () => ({
-        url: "me",
+        url: "/me",
         method: "GET",
       }),
     }),
 
     refreshAccessToken: builder.query<any, void>({
-      query: () => "refreshAccessToken",
+      query: () => "/refreshAccessToken",
     }),
   }),
 });
