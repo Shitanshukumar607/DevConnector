@@ -166,9 +166,6 @@ const refreshAccessToken = async (req, res) => {
     req.cookies?.refreshToken ||
     req.header("Authorization")?.replace("Bearer ", "");
 
-  console.log("Refresh token:", req.cookies?.refreshToken);
-  console.log("Access token:", req.cookies?.accessToken);
-
   if (!token) {
     return res.status(401).json({
       success: false,

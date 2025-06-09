@@ -70,7 +70,7 @@ const editComment = async (req, res) => {
   const { id: postId, commentId } = req.params;
   const { text } = req.body;
 
-  console.log("Editing comment:", { postId, commentId, text });
+  // console.log("Editing comment:", { postId, commentId, text });
 
   if (!text || text.trim() === "") {
     return res
