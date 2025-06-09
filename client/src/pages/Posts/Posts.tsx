@@ -16,6 +16,7 @@ import {
 import CommentSection from "./CommentSection";
 import { formatDistanceToNowStrict } from "date-fns";
 import UnauthorizedPopup from "../Popup/Popup";
+import refreshAccessToken from "../../utils/refreshAccessoken";
 
 export default function Post() {
   const { id } = useParams<{ id: string }>();
@@ -66,23 +67,40 @@ export default function Post() {
   }
 
   const handleLike = async () => {
-    if (isLiking) return;
+    if (isLiking || likedStatus === "like") return;
+    setIsLiking(true);
 
     try {
       const likePostData = await likePost(id!).unwrap();
       if (likePostData) {
         setLikedStatus("like");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error liking post:", err);
-      setShowPopup(true);
+
+      const refreshed = await refreshAccessToken();
+
+      if (refreshed) {
+        try {
+          const retryLike = await likePost(id!).unwrap();
+
+          if (retryLike) {
+            setLikedStatus("like");
+          }
+        } catch (err) {
+          console.error("Error retrying like post:", err);
+        }
+      } else {
+        setShowPopup(true);
+      }
     } finally {
       setIsLiking(false);
     }
   };
 
   const handleDislike = async () => {
-    if (isDisliking) return;
+    if (isDisliking || likedStatus === "dislike") return;
+    setIsDisliking(true);
 
     try {
       const dislikePostData = await dislikePost(id!).unwrap();
@@ -91,7 +109,20 @@ export default function Post() {
       }
     } catch (err) {
       console.error("Error disliking post:", err);
-      setShowPopup(true);
+      const refreshed = await refreshAccessToken();
+
+      if (refreshed) {
+        try {
+          const retryDislike = await dislikePost(id!).unwrap();
+          if (retryDislike) {
+            setLikedStatus("dislike");
+          }
+        } catch (err) {
+          console.error("Error retrying dislike post:", err);
+        }
+      } else {
+        setShowPopup(true);
+      }
     } finally {
       setIsDisliking(false);
     }
