@@ -160,4 +160,56 @@ const getUserData = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, getUserData };
+const refreshAccessToken = async (req, res) => {
+  const token =
+    req.cookies?.refreshToken ||
+    req.header("Authorization")?.replace("Bearer ", "");
+
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized request",
+    });
+  }
+
+  try {
+    const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(decodedToken?._id);
+
+    if (!user || user.refreshToken !== token) {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid refresh token",
+      });
+    }
+
+    const payload = {
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      username: user.username,
+    };
+
+    const newAccessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "15m",
+    });
+
+    res
+      .cookie("accessToken", newAccessToken, {
+        httpOnly: true,
+        secure: true,
+      })
+      .status(200)
+      .json({
+        success: true,
+        accessToken: newAccessToken,
+      });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid refresh token",
+    });
+  }
+};
+
+export { registerUser, loginUser, getUserData, refreshAccessToken };
