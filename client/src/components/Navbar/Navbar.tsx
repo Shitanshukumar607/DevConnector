@@ -1,8 +1,17 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Bell, MessageSquare, Plus, UserRoundIcon } from "lucide-react";
-import fullIcon from "/full-icon.png";
 import { useSelector } from "react-redux";
+import { NavLink, useNavigate } from "react-router";
+import fullIcon from "/full-icon.png";
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 export default function Navbar() {
+  const navigate = useNavigate();
   const user = useSelector((state: any) => state.auth.user);
 
   return (
@@ -10,7 +19,9 @@ export default function Navbar() {
       <div className="mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Logo */}
         <div className="text-white font-semibold text-lg tracking-tight">
-          <img src={fullIcon} alt="DevConnector" className="w-30" />
+          <NavLink to="/" className="flex items-center gap-2">
+            <img src={fullIcon} alt="DevConnector" className="w-30" />
+          </NavLink>
         </div>
 
         {/* Search bar - hide on small screens */}
@@ -36,7 +47,10 @@ export default function Navbar() {
           </button>
 
           {/* Create Button */}
-          <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm text-white font-medium transition-colors border border-[#2a2a2a]">
+          <button
+            onClick={() => navigate("/create-post")}
+            className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm text-white font-medium transition-colors border border-[#2a2a2a] font-primary"
+          >
             <Plus className="w-4 h-4" />
             Create
           </button>
@@ -44,9 +58,26 @@ export default function Navbar() {
           {/* Avatar */}
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 flex items-center justify-center text-sm font-bold text-white font-primary">
             {user?.username ? (
-              user.username.charAt(0).toUpperCase()
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <span className="w-8 h-8 rounded-full flex items-center justify-center">
+                    {user.username.charAt(0).toUpperCase()}
+                  </span>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Billing</DropdownMenuItem>
+                  <DropdownMenuItem>Team</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-red-500 hover:bg-red-500/10 focus:bg-red-500 focus:text-white">
+                    Log Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <UserRoundIcon />
+              <NavLink to="/login" className="text-white">
+                <UserRoundIcon className="w-5 h-5" />
+              </NavLink>
             )}
           </div>
         </div>
