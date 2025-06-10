@@ -30,7 +30,7 @@ const createAPost = async (req, res) => {
     const newPost = await Post.create({
       title,
       description,
-      user: res.user._id,
+      user: req.user._id,
     });
 
     const populatedPost = await newPost.populate("user", "username _id");
