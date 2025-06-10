@@ -199,6 +199,7 @@ const refreshAccessToken = async (req, res) => {
       .cookie("accessToken", newAccessToken, {
         httpOnly: true,
         secure: true,
+        sameSite: "none",
       })
       .status(200)
       .json({
