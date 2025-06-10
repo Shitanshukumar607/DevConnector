@@ -28,12 +28,14 @@ const getAllCommentsOnPost = async (req, res) => {
 
 const addCommentToPost = async (req, res) => {
   const { id } = req.params;
-  const { text } = req.body;
+  const { content } = req.body;
 
-  if (!text || text.trim() === "") {
+  console.log("Adding comment to post:", { id, content });
+
+  if (!content || content.trim() === "") {
     return res
       .status(400)
-      .json({ success: false, message: "Text is required" });
+      .json({ success: false, message: "content is required" });
   }
 
   try {
@@ -45,7 +47,7 @@ const addCommentToPost = async (req, res) => {
     }
 
     const comment = await Comment.create({
-      text,
+      content,
       post: id,
       user: req.user._id,
     });
@@ -68,14 +70,14 @@ const addCommentToPost = async (req, res) => {
 
 const editComment = async (req, res) => {
   const { id: postId, commentId } = req.params;
-  const { text } = req.body;
+  const { content } = req.body;
 
-  // console.log("Editing comment:", { postId, commentId, text });
+  // console.log("Editing comment:", { postId, commentId, content });
 
-  if (!text || text.trim() === "") {
+  if (!content || content.trim() === "") {
     return res
       .status(400)
-      .json({ success: false, message: "Text is required" });
+      .json({ success: false, message: "content is required" });
   }
 
   try {
@@ -100,7 +102,7 @@ const editComment = async (req, res) => {
       });
     }
 
-    comment.text = text;
+    comment.content = content;
     await comment.save();
 
     return res.status(200).json({
