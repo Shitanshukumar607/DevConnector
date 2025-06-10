@@ -63,6 +63,39 @@ export const postApi = createApi({
       }),
       invalidatesTags: ["Post"],
     }),
+
+    getComments: builder.query({
+      query: (postId: string) => ({
+        url: `/${postId}/comments`,
+        method: "GET",
+      }),
+    }),
+
+    addComment: builder.mutation({
+      query: (data: { postId: string; content: string }) => ({
+        url: `/${data.postId}/comments`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Post"],
+    }),
+
+    editComment: builder.mutation({
+      query: (data: { postId: string; commentId: string }) => ({
+        url: `/${data.postId}/comments/${data.commentId}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["Post"],
+    }),
+
+    deleteComment: builder.mutation({
+      query: (data: { postId: string; commentId: string }) => ({
+        url: `/${data.postId}/comments/${data.commentId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Post"],
+    }),
   }),
 });
 
@@ -74,4 +107,8 @@ export const {
   useDeletePostMutation,
   useLikePostMutation,
   useDislikePostMutation,
+  useGetCommentsQuery,
+  useAddCommentMutation,
+  useEditCommentMutation,
+  useDeleteCommentMutation,
 } = postApi;

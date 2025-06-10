@@ -8,22 +8,13 @@ type CommentType = {
   };
   createdAt: string;
   updatedAt: string;
-  text: string;
+  content: string;
   likes: string[];
   dislikes: string[];
 };
 
-// createdAt: "2025-06-06T16:11:17.777Z";
-// dislikes: [];
-// likes: [];
-// text: "This is a edited comment ";
-// updatedAt: "2025-06-06T16:22:43.621Z";
-// user: "683b0d169a358bbfd52543b7";
-// __v: 0;
-// _id: "68431325069acaa2cb092565";
-
 const Comment = ({ comment: commentData }: { comment: CommentType }) => {
-//   console.log("Comment Data:", commentData);
+  //   console.log("Comment Data:", commentData);
 
   const dateFromNow: string = formatDistanceToNowStrict(
     commentData?.updatedAt,
@@ -47,7 +38,7 @@ const Comment = ({ comment: commentData }: { comment: CommentType }) => {
             <span className="text-gray-500 text-xs">{dateFromNow}</span>
           </div>
           <p className="text-gray-200 leading-relaxed mb-3 flex">
-            {commentData.text}
+            {commentData.content}
           </p>
           <div className="flex items-center gap-4">
             <button className="flex items-center gap-1 text-gray-400 hover:text-orange-400 transition-colors">
