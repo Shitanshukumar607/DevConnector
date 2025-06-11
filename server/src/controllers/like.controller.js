@@ -8,45 +8,45 @@ const likePost = async (req, res) => {
     const post = await Post.findById(id);
 
     if (!post) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Post not found" });
-    }
-
-    if (post.likes.includes(req.user._id)) {
-      post.likes = post.likes.filter(
-        (userId) => userId.toString() !== req.user._id.toString()
-      );
-      await post.save();
-
-      return res.status(200).json({
-        success: true,
-        message: "Post un-liked successfully",
-        likedStatus: false,
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
       });
     }
 
-    if (post.dislikes.includes(req.user._id)) {
-      post.dislikes = post.dislikes.filter(
-        (userId) => userId.toString() !== req.user._id.toString()
-      );
+    const userId = req.user._id.toString();
+
+    const likesSet = new Set(post.likes.map((id) => id.toString()));
+    const dislikesSet = new Set(post.dislikes.map((id) => id.toString()));
+
+    let likedStatus;
+
+    if (likesSet.has(userId)) {
+      likesSet.delete(userId);
+      likedStatus = false;
+    } else {
+      dislikesSet.delete(userId);
+      likesSet.add(userId);
+      likedStatus = true;
     }
 
-    post.likes.push(req.user._id);
+    post.likes = Array.from(likesSet);
+    post.dislikes = Array.from(dislikesSet);
     await post.save();
-
-    // console.log("Post liked by user:", req.user._id);
 
     return res.status(200).json({
       success: true,
-      message: "Post liked successfully",
-      likedStatus: true,
+      message: likedStatus
+        ? "Post liked successfully"
+        : "Post un-liked successfully",
+      likedStatus,
     });
   } catch (error) {
     console.error("Error liking post:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
 
@@ -57,36 +57,44 @@ const dislikePost = async (req, res) => {
     const post = await Post.findById(id);
 
     if (!post) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Post not found" });
-    }
-
-    if (post.dislikes.includes(req.user._id)) {
-      post.dislikes = post.dislikes.filter(
-        (userId) => userId.toString() !== req.user._id.toString()
-      );
-      await post.save();
-      return res.status(200).json({
-        success: true,
-        message: "Post un-disliked successfully",
-        dislikedStatus: false,
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
       });
     }
 
-    if (post.likes.includes(req.user._id)) {
-      post.likes = post.likes.filter(
-        (userId) => userId.toString() !== req.user._id.toString()
-      );
+    const userId = req.user._id.toString();
+
+    const likesSet = new Set(post.likes.map((id) => id.toString()));
+    const dislikesSet = new Set(post.dislikes.map((id) => id.toString()));
+
+    let message = "";
+    let likedStatus = likesSet.has(userId);
+    let dislikedStatus = dislikesSet.has(userId);
+
+    if (dislikedStatus) {
+      post.dislikes = post.dislikes.filter((id) => id.toString() !== userId);
+      message = "Post un-disliked successfully";
+      dislikedStatus = false;
+    } else {
+      post.dislikes.push(userId);
+      dislikedStatus = true;
+
+      if (likedStatus) {
+        post.likes = post.likes.filter((id) => id.toString() !== userId);
+        likedStatus = false;
+      }
+
+      message = "Post disliked successfully";
     }
 
-    post.dislikes.push(req.user._id);
     await post.save();
 
     return res.status(200).json({
       success: true,
-      message: "Post disliked successfully",
-      dislikedStatus: true,
+      message,
+      likedStatus,
+      dislikedStatus,
     });
   } catch (error) {
     console.error("Error disliking post:", error);
