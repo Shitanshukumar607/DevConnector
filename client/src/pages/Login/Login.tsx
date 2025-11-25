@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { loginUser } from "../../api/auth/auth";
 import useAuthStore from "../../store/authStore";
 import type { AuthState } from "../../store/authStore";
@@ -19,9 +20,9 @@ export default function Login() {
 
   const {
     mutateAsync: login,
-    isLoading,
+    isPending,
     error,
-  } = useMutation<AuthResponse, unknown, LoginData>({
+  } = useMutation<AuthResponse, AxiosError<{ message?: string }>, LoginData>({
     mutationFn: (data) => loginUser(data),
     onSuccess: (response) => {
       if (response?.success && response.user) {
@@ -80,7 +81,7 @@ export default function Login() {
             />
           </div>
 
-          {isLoading && (
+          {isPending && (
             <p className="flex text-red-500 text-sm text-center mt-2 font-primary">
               Logging in...
             </p>
@@ -88,7 +89,8 @@ export default function Login() {
 
           {error && (
             <p className="flex text-red-500 text-sm text-center mt-2 font-primary">
-              {(error as any)?.data?.message ||
+              {error.response?.data?.message ||
+                error.message ||
                 "Login failed. Please try again."}
             </p>
           )}
@@ -96,9 +98,9 @@ export default function Login() {
           <button
             type="submit"
             className="w-full bg-white text-black font-semibold py-2 rounded-md hover:bg-gray-200 transition"
-            disabled={isLoading}
+            disabled={isPending}
           >
-            {isLoading ? "Logging in..." : "Sign In"}
+            {isPending ? "Logging in..." : "Sign In"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-500">

@@ -84,11 +84,7 @@ export default function Post() {
   }
 
   if (!postData) {
-    return (
-      <div className="text-white text-center">
-        Unable to load post.
-      </div>
-    );
+    return <div className="text-white text-center">Unable to load post.</div>;
   }
 
   const handleLike = async () => {
