@@ -1,4 +1,9 @@
 import { MessageCircle, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { likePost, dislikePost } from "../../api/posts";
+import useAuthStore from "../../store/authStore";
+import { useState } from "react";
+import UnauthorizedPopup from "../../pages/Popup/Popup";
 
 type User = {
   _id: string;
@@ -7,36 +12,97 @@ type User = {
 
 const PostFooter = ({
   likes,
+  dislikes,
   comments,
+  postId,
 }: {
   likes: User[];
+  dislikes: User[];
   comments: User[];
+  postId: string;
 }) => {
+  const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+  const [showPopup, setShowPopup] = useState(false);
+
+  const isLiked = user ? likes.some((like) => like._id === user._id) : false;
+  const isDisliked = user
+    ? dislikes.some((dislike) => dislike._id === user._id)
+    : false;
+
+  const { mutate: handleLike } = useMutation({
+    mutationFn: () => likePost(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+
+  const { mutate: handleDislike } = useMutation({
+    mutationFn: () => dislikePost(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+
+  const onLikeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!user) {
+      setShowPopup(true);
+      return;
+    }
+    handleLike();
+  };
+
+  const onDislikeClick = () => {
+    if (!user) {
+      setShowPopup(true);
+      return;
+    }
+    handleDislike();
+  };
+
   return (
-    <div>
-      <div className="flex items-center space-x-4 text-sm">
-        <div className=" flex items-center transition-all rounded-full bg-[#1a282d] ">
-          <div className="flex items-center">
-            <button className="bg-[#1a282d] hover:bg-[#FFFFFF26] p-3 rounded-full hover:text-red-600 transition">
-              <ThumbsUp size={16} />
-            </button>
-            <span>{likes.length}</span>
-          </div>
-          <button className="bg-[#1a282d] hover:bg-[#FFFFFF26] p-3 rounded-full hover:text-blue-600 transition">
-            <ThumbsDown size={16} />
+    <>
+      {showPopup && <UnauthorizedPopup onClose={() => setShowPopup(false)} />}
+      <div
+        className="flex items-center gap-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center bg-[#27272a] rounded-full p-1 border border-white/10 hover:border-white/20 transition-colors">
+          <button
+            onClick={onLikeClick}
+            className={`p-2 hover:bg-white/10 rounded-full transition-colors ${
+              isLiked
+                ? "text-orange-500"
+                : "text-gray-400 hover:text-orange-500"
+            }`}
+          >
+            <ThumbsUp size={18} />
+          </button>
+          <span className="px-1 text-sm font-medium text-gray-300 min-w-[1.5rem] text-center">
+            {likes.length}
+          </span>
+          <div className="w-px h-4 bg-white/10 mx-1"></div>
+          <button
+            onClick={onDislikeClick}
+            className={`p-2 hover:bg-white/10 rounded-full transition-colors ${
+              isDisliked ? "text-blue-500" : "text-gray-400 hover:text-blue-500"
+            }`}
+          >
+            <ThumbsDown size={18} />
           </button>
         </div>
 
-        <button className="flex items-center space-x-1 hover:bg-[#FFFFFF26] transition-all gap-1 px-3 py-2.5 rounded-full bg-[#1a282d]">
-          <MessageCircle size={16} />
+        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#27272a] hover:bg-[#3f3f46] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all text-sm font-medium">
+          <MessageCircle size={18} />
           <span>{comments.length}</span>
         </button>
-        <button className="flex items-center space-x-1 hover:bg-[#FFFFFF26] transition-all gap-1 px-3 py-2.5 rounded-full bg-[#1a282d]">
-          <Share2 size={16} />
-          <span>Share</span>
+
+        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#27272a] hover:bg-[#3f3f46] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all text-sm font-medium ml-auto">
+          <Share2 size={18} />
+          <span className="hidden sm:inline">Share</span>
         </button>
       </div>
-    </div>
+    </>
   );
 };
 

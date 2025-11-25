@@ -19,6 +19,10 @@ type PostCardProps = {
     _id: string;
     username: string;
   }[];
+  dislikes: {
+    _id: string;
+    username: string;
+  }[];
   comments: {
     _id: string;
     username: string;

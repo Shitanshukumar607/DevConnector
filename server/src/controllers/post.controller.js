@@ -20,6 +20,8 @@ const getAllPosts = async (req, res) => {
 
     const allPosts = await Post.find(searchFilter)
       .populate("user", "_id username")
+      .populate("likes", "_id username")
+      .populate("dislikes", "_id username")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
