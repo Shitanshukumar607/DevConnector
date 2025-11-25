@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
-import { useLoginMutation } from "../../redux/auth/authApi";
-import { useDispatch } from "react-redux";
-import { setUser } from "../../redux/auth/authSlice";
+import { useMutation } from "@tanstack/react-query";
+import { loginUser } from "../../api/auth/auth";
+import useAuthStore from "../../store/authStore";
+import type { AuthState } from "../../store/authStore";
+import type { AuthResponse, LoginData } from "../../api/auth/types";
 
 type Inputs = {
   email: string;
@@ -12,19 +14,28 @@ type Inputs = {
 
 export default function Login() {
   const { register, handleSubmit } = useForm<Inputs>();
-  const [login, { isLoading, error }] = useLoginMutation();
-
-  const dispatch = useDispatch();
+  const setUser = useAuthStore((state: AuthState) => state.setUser);
   const navigate = useNavigate();
+
+  const {
+    mutateAsync: login,
+    isLoading,
+    error,
+  } = useMutation<AuthResponse, unknown, LoginData>({
+    mutationFn: (data) => loginUser(data),
+    onSuccess: (response) => {
+      if (response?.success && response.user) {
+        setUser(response.user);
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      }
+    },
+  });
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      const response = await login(data).unwrap();
-      dispatch(setUser(response.user));
-
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
+      await login(data);
     } catch (e) {
       console.error("Login failed:", e);
     }

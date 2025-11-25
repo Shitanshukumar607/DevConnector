@@ -2,7 +2,8 @@ import { MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useParams } from "react-router";
-import { useAddCommentMutation } from "../../redux/posts/postApi";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addCommentToPost } from "../../api/posts";
 
 import refreshAccessToken from "../../utils/refreshAccessoken";
 import UnauthorizedPopup from "../Popup/Popup";
@@ -31,8 +32,18 @@ type Inputs = {
 const CommentSection = ({ postData }: { postData: PostData }) => {
   const [isCommenting, setIsCommenting] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const queryClient = useQueryClient();
 
-  const [addComment, { isLoading }] = useAddCommentMutation();
+  const { mutateAsync: addComment, isLoading } = useMutation({
+    mutationFn: (payload: { postId: string; content: string }) =>
+      addCommentToPost(payload),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: ["post", id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
 
   const { id } = useParams<{ id: string }>();
 

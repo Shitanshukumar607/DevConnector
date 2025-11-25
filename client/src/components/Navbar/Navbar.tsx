@@ -5,14 +5,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Bell, MessageSquare, Plus, UserRoundIcon } from "lucide-react";
-import { useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router";
 import fullIcon from "/full-icon.png";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import useAuthStore from "@/store/authStore";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const user = useSelector((state: any) => state.auth.user);
+  const user = useAuthStore((state) => state.user);
 
   return (
     <nav className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1a1a1a]">

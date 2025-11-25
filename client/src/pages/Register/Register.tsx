@@ -1,7 +1,9 @@
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
-import { useRegisterMutation } from "../../redux/auth/authApi";
+import { useMutation } from "@tanstack/react-query";
+import { registerUser } from "../../api/auth/auth";
+import type { AuthResponse, RegisterData } from "../../api/auth/types";
 
 type Inputs = {
   fullName: string;
@@ -11,18 +13,25 @@ type Inputs = {
 
 export default function Register() {
   const { register, handleSubmit } = useForm<Inputs>();
-  const [registerUser, { isLoading, error }] = useRegisterMutation();
 
   const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    try {
-      await registerUser(data).unwrap();
-      // console.log("Registration successful!");
-
+  const { mutateAsync: registerMutation, isLoading, error } = useMutation<
+    AuthResponse,
+    unknown,
+    RegisterData
+  >({
+    mutationFn: (data) => registerUser(data),
+    onSuccess: () => {
       setTimeout(() => {
         navigate("/login");
       }, 1000);
+    },
+  });
+
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      await registerMutation(data);
     } catch (e) {
       console.error("Sign up failed:", e);
     }

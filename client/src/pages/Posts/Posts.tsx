@@ -8,11 +8,8 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import {
-  useDislikePostMutation,
-  useGetPostByIdQuery,
-  useLikePostMutation,
-} from "../../redux/posts/postApi";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { dislikePost, getPostById, likePost } from "../../api/posts";
 import CommentSection from "./CommentSection";
 import { formatDistanceToNowStrict } from "date-fns";
 import UnauthorizedPopup from "../Popup/Popup";
@@ -20,14 +17,34 @@ import refreshAccessToken from "../../utils/refreshAccessoken";
 
 export default function Post() {
   const { id } = useParams<{ id: string }>();
-  const { data, error, isLoading } = useGetPostByIdQuery(id!, {
-    skip: !id,
+  const queryClient = useQueryClient();
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["post", id],
+    queryFn: () => getPostById(id!),
+    enabled: Boolean(id),
   });
 
   const navigate = useNavigate();
 
-  const [likePost] = useLikePostMutation();
-  const [dislikePost] = useDislikePostMutation();
+  const likeMutation = useMutation({
+    mutationFn: (postId: string) => likePost(postId),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: ["post", id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+
+  const dislikeMutation = useMutation({
+    mutationFn: (postId: string) => dislikePost(postId),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: ["post", id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
 
   const [likedStatus, setLikedStatus] = useState<string>("");
   const [isLiking, setIsLiking] = useState<boolean>(false);
@@ -35,7 +52,7 @@ export default function Post() {
 
   const [showPopup, setShowPopup] = useState(false);
 
-  const postData = data?.data || [];
+  const postData = data?.data;
   // console.log(postData, error, isLoading);
 
   useEffect(() => {
@@ -66,12 +83,20 @@ export default function Post() {
     );
   }
 
+  if (!postData) {
+    return (
+      <div className="text-white text-center">
+        Unable to load post.
+      </div>
+    );
+  }
+
   const handleLike = async () => {
-    if (isLiking || likedStatus === "like") return;
+    if (!id || isLiking || likedStatus === "like") return;
     setIsLiking(true);
 
     try {
-      const likePostData = await likePost(id!).unwrap();
+      const likePostData = await likeMutation.mutateAsync(id);
       if (likePostData) {
         setLikedStatus("like");
       }
@@ -83,7 +108,7 @@ export default function Post() {
 
       if (refreshed) {
         try {
-          const retryLike = await likePost(id!).unwrap();
+          const retryLike = await likeMutation.mutateAsync(id);
 
           if (retryLike) {
             setLikedStatus("like");
@@ -100,15 +125,15 @@ export default function Post() {
   };
 
   const handleDislike = async () => {
-    if (isDisliking || likedStatus === "dislike") return;
+    if (!id || isDisliking || likedStatus === "dislike") return;
     setIsDisliking(true);
 
     try {
-      const dislikePostData = await dislikePost(id!).unwrap();
+      const dislikePostData = await dislikeMutation.mutateAsync(id);
       if (dislikePostData) {
         setLikedStatus("dislike");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error disliking post:", err);
       const refreshed = await refreshAccessToken();
 
@@ -116,7 +141,7 @@ export default function Post() {
 
       if (refreshed) {
         try {
-          const retryDislike = await dislikePost(id!).unwrap();
+          const retryDislike = await dislikeMutation.mutateAsync(id);
           if (retryDislike) {
             setLikedStatus("dislike");
           }

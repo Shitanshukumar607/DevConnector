@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { useCreatePostMutation } from "../../redux/posts/postApi";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createPost } from "../../api/posts";
 import refreshAccessToken from "../../utils/refreshAccessoken";
 
 type PostInputs = {
@@ -18,7 +19,13 @@ export default function CreatePost() {
   } = useForm<PostInputs>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [createPost] = useCreatePostMutation();
+  const queryClient = useQueryClient();
+  const { mutateAsync: createPostMutation } = useMutation({
+    mutationFn: (data: PostInputs) => createPost(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
 
   const navigate = useNavigate();
 
@@ -26,7 +33,7 @@ export default function CreatePost() {
     setIsSubmitting(true);
 
     try {
-      await createPost(data).unwrap();
+      await createPostMutation(data);
       reset();
       navigate("/");
     } catch (err: any) {
@@ -34,7 +41,7 @@ export default function CreatePost() {
 
       if (refreshed) {
         try {
-          await createPost(data).unwrap();
+          await createPostMutation(data);
           reset();
           navigate("/");
         } catch (err) {

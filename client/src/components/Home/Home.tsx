@@ -1,6 +1,6 @@
 import Postcard from "../Postcard/Postcard";
-
-import { useGetPostsQuery } from "../../redux/posts/postApi";
+import { useQuery } from "@tanstack/react-query";
+import { getPosts } from "../../api/posts";
 
 type PostCardProps = {
   _id: string;
@@ -22,7 +22,10 @@ type PostCardProps = {
 };
 
 const Home = () => {
-  const { data, error, isLoading } = useGetPostsQuery({});
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["posts"],
+    queryFn: getPosts,
+  });
 
   const posts: PostCardProps[] = data?.data ?? [];
 
