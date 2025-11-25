@@ -4,7 +4,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, MessageSquare, Plus, UserRoundIcon, X, Search } from "lucide-react";
+import {
+  Bell,
+  MessageSquare,
+  Plus,
+  UserRoundIcon,
+  X,
+  Search,
+} from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import fullIcon from "/full-icon.png";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";

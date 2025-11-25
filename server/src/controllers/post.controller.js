@@ -6,15 +6,15 @@ const getAllPosts = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
-    
+
     const skip = (page - 1) * limit;
 
     const searchFilter = search
       ? {
           $or: [
             { title: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } }
-          ]
+            { description: { $regex: search, $options: "i" } },
+          ],
         }
       : {};
 
@@ -27,15 +27,15 @@ const getAllPosts = async (req, res) => {
     const totalPosts = await Post.countDocuments(searchFilter);
     const hasMore = skip + allPosts.length < totalPosts;
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       data: allPosts,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalPosts / limit),
         totalPosts,
-        hasMore
-      }
+        hasMore,
+      },
     });
   } catch (error) {
     console.error("Error fetching posts:", error);

@@ -37,11 +37,11 @@ const Home = () => {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["posts", searchTerm],
-    queryFn: ({ pageParam = 1 }) => 
-      getPosts({ 
-        page: pageParam, 
-        limit: 10, 
-        search: searchTerm || undefined 
+    queryFn: ({ pageParam = 1 }) =>
+      getPosts({
+        page: pageParam,
+        limit: 10,
+        search: searchTerm || undefined,
       }),
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.pagination.hasMore ? allPages.length + 1 : undefined;
@@ -73,7 +73,9 @@ const Home = () => {
     return (
       <div className="flex justify-center items-center py-8">
         <div className="text-gray-400">
-          {searchTerm ? `No posts found for "${searchTerm}"` : "No posts available"}
+          {searchTerm
+            ? `No posts found for "${searchTerm}"`
+            : "No posts available"}
         </div>
       </div>
     );
@@ -89,9 +91,8 @@ const Home = () => {
               <h3 className="text-lg font-semibold">Search Results</h3>
               <p className="text-gray-400 text-sm">
                 Showing results for "{searchTerm}"
-                {data?.pages[0]?.pagination?.totalPosts !== undefined && 
-                  ` (${data.pages[0].pagination.totalPosts} total)`
-                }
+                {data?.pages[0]?.pagination?.totalPosts !== undefined &&
+                  ` (${data.pages[0].pagination.totalPosts} total)`}
               </p>
             </div>
             <button
@@ -114,10 +115,9 @@ const Home = () => {
         endMessage={
           <div className="flex justify-center items-center py-4">
             <div className="text-gray-400">
-              {searchTerm ? 
-                `No more results for "${searchTerm}"` : 
-                "No more posts to load"
-              }
+              {searchTerm
+                ? `No more results for "${searchTerm}"`
+                : "No more posts to load"}
             </div>
           </div>
         }
@@ -128,7 +128,7 @@ const Home = () => {
           <Postcard key={post._id} post={post} />
         ))}
       </InfiniteScroll>
-      
+
       {isFetchingNextPage && (
         <div className="flex justify-center items-center py-4">
           <LoadingMessage message="Fetching more posts..." />
