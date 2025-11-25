@@ -5,8 +5,20 @@ type PostInput = {
   description: string;
 };
 
-export const getPosts = async () => {
-  const response = await axios.get("/posts");
+type PostsParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+};
+
+export const getPosts = async (params?: PostsParams) => {
+  const searchParams = new URLSearchParams();
+  
+  if (params?.page) searchParams.append('page', params.page.toString());
+  if (params?.limit) searchParams.append('limit', params.limit.toString());
+  if (params?.search) searchParams.append('search', params.search);
+  
+  const response = await axios.get(`/posts?${searchParams.toString()}`);
   return response.data;
 };
 
