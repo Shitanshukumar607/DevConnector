@@ -150,7 +150,7 @@ export default function Navbar() {
                   <DropdownMenuItem>Billing</DropdownMenuItem>
                   <DropdownMenuItem>Team</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     className="text-red-500 hover:bg-red-500/10 focus:bg-red-500 focus:text-white cursor-pointer"
                     onClick={handleLogout}
                     disabled={logoutMutation.isPending}

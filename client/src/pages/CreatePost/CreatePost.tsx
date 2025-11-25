@@ -36,7 +36,7 @@ export default function CreatePost() {
       await createPostMutation(data);
       reset();
       navigate("/");
-    } catch (err: any) {
+    } catch {
       const refreshed = await refreshAccessToken();
 
       if (refreshed) {

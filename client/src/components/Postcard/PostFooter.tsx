@@ -5,7 +5,13 @@ type User = {
   username: string;
 };
 
-const PostFooter = ({ likes, comments }: { likes: User[]; comments: User[]; }) => {
+const PostFooter = ({
+  likes,
+  comments,
+}: {
+  likes: User[];
+  comments: User[];
+}) => {
   return (
     <div>
       <div className="flex items-center space-x-4 text-sm">

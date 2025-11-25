@@ -26,4 +26,10 @@ const logoutUser = async (): Promise<{ success: boolean; message: string }> => {
   return res.data;
 };
 
-export { getCurrentUser, loginUser, logoutUser, refreshAccessToken, registerUser };
+export {
+  getCurrentUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  registerUser,
+};

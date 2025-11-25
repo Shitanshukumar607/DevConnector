@@ -96,7 +96,7 @@ export default function Post() {
       if (likePostData) {
         setLikedStatus("like");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error liking post:", err);
 
       const refreshed = await refreshAccessToken();
@@ -129,7 +129,7 @@ export default function Post() {
       if (dislikePostData) {
         setLikedStatus("dislike");
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error disliking post:", err);
       const refreshed = await refreshAccessToken();
 

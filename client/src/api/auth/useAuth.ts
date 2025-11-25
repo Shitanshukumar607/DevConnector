@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
-    getCurrentUser,
-    loginUser,
-    logoutUser,
-    refreshAccessToken,
-    registerUser,
+  getCurrentUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  registerUser,
 } from "./auth";
 import type { LoginData, RegisterData } from "./types";
 
@@ -46,6 +46,11 @@ const useLogout = () => {
     },
   });
 };
- 
-export { useGetCurrentUser, useLogin, useLogout, useRefreshAccessToken, useRegister };
 
+export {
+  useGetCurrentUser,
+  useLogin,
+  useLogout,
+  useRefreshAccessToken,
+  useRegister,
+};

@@ -34,7 +34,7 @@ const CommentSection = ({ postData }: { postData: PostData }) => {
   const [showPopup, setShowPopup] = useState(false);
   const queryClient = useQueryClient();
 
-  const { mutateAsync: addComment, isLoading } = useMutation({
+  const { mutateAsync: addComment, isPending } = useMutation({
     mutationFn: (payload: { postId: string; content: string }) =>
       addCommentToPost(payload),
     onSuccess: () => {
@@ -57,7 +57,7 @@ const CommentSection = ({ postData }: { postData: PostData }) => {
         content: data.content,
       });
       reset();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error commenting on post:", err);
 
       const refreshed = await refreshAccessToken();
@@ -111,7 +111,7 @@ const CommentSection = ({ postData }: { postData: PostData }) => {
                 />
                 <div className="flex justify-end mt-3">
                   <button
-                    disabled={isCommenting || isLoading}
+                    disabled={isCommenting || isPending}
                     className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors font-medium"
                     onClick={handleSubmit(onSubmit)}
                   >
