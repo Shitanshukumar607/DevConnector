@@ -1,17 +1,12 @@
-import { authApi } from "../redux/auth/authApi";
-import { store } from "../redux/store";
+import { refreshAccessToken as requestRefreshAccessToken } from "@/api/auth/auth";
 
 const refreshAccessToken = async () => {
   try {
-    const result = await store.dispatch(
-      authApi.endpoints.refreshAccessToken.initiate()
-    );
+    const result = await requestRefreshAccessToken();
 
     console.log("Refresh Access Token Result:", result);
 
-    if ("data" in result && result.data?.success) {
-      return true;
-    }
+    return Boolean(result?.success);
   } catch (error) {
     console.error("Error refreshing access token:", error);
   }

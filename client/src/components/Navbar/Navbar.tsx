@@ -1,18 +1,63 @@
+import { useLogout } from "@/api/auth/useAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Bell, MessageSquare, Plus, UserRoundIcon } from "lucide-react";
-import { useSelector } from "react-redux";
+import useAuthStore from "@/store/authStore";
+import useSearchStore from "@/store/searchStore";
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import {
+  Bell,
+  MessageSquare,
+  Plus,
+  Search,
+  UserRoundIcon,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 import fullIcon from "/full-icon.png";
-import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const user = useSelector((state: any) => state.auth.user);
+  const user = useAuthStore((state) => state.user);
+  const clearUser = useAuthStore((state) => state.clearUser);
+  const { searchTerm, setSearchTerm } = useSearchStore();
+  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+  const logoutMutation = useLogout();
+
+  // Debounce search term updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchTerm(localSearchTerm);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timer);
+  }, [localSearchTerm, setSearchTerm]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSearchTerm(e.target.value);
+  };
+
+  const clearSearch = () => {
+    setLocalSearchTerm("");
+    setSearchTerm("");
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      clearUser();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      // Even if the server request fails, clear the local state
+      clearUser();
+      navigate("/login");
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1a1a1a]">
@@ -26,23 +71,65 @@ export default function Navbar() {
 
         {/* Search bar - hide on small screens */}
         <div className="hidden md:flex flex-1 justify-center">
-          <input
-            type="text"
-            placeholder="Search posts..."
-            className="w-full max-w-md px-4 py-2  text-sm placeholder:text-gray-500 bg-[#1a1a1a] text-white border border-[#2a2a2a] rounded-md focus:outline-none focus:ring-1 focus:ring-white font-secondary"
-            name="search"
-          />
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search posts..."
+              className="w-full pl-10 pr-10 py-2 text-sm placeholder:text-gray-500 bg-[#1a1a1a] text-white border border-[#2a2a2a] rounded-md focus:outline-none focus:ring-1 focus:ring-white font-secondary"
+              name="search"
+              value={localSearchTerm}
+              onChange={handleSearchChange}
+            />
+            {localSearchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Search bar */}
+        <div className="md:hidden flex-1">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-7 pr-7 py-2 text-xs placeholder:text-gray-500 bg-[#1a1a1a] text-white border border-[#2a2a2a] rounded-md focus:outline-none focus:ring-1 focus:ring-white font-secondary"
+              name="search-mobile"
+              value={localSearchTerm}
+              onChange={handleSearchChange}
+            />
+            {localSearchTerm && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-3">
           {/* Message Icon */}
-          <button className="p-2 rounded-full hover:bg-[#1a1a1a] text-gray-400 hover:text-white transition-colors">
+          <button
+            className="p-2 rounded-full hover:bg-[#1a1a1a] text-gray-400 hover:text-white transition-colors"
+            onClick={() => alert("messages not implemented")}
+          >
             <MessageSquare className="w-5 h-5" />
           </button>
 
           {/* Notification Icon */}
-          <button className="p-2 rounded-full hover:bg-[#1a1a1a] text-gray-400 hover:text-white transition-colors">
+          <button
+            className="p-2 rounded-full hover:bg-[#1a1a1a] text-gray-400 hover:text-white transition-colors"
+            onClick={() => alert("notifications not implemented")}
+          >
             <Bell className="w-5 h-5" />
           </button>
 
@@ -65,12 +152,20 @@ export default function Navbar() {
                   </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Billing</DropdownMenuItem>
-                  <DropdownMenuItem>Team</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => alert("Profile not implemented yet")}
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  {/* <DropdownMenuItem>Billing</DropdownMenuItem>
+                  <DropdownMenuItem>Team</DropdownMenuItem> */}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-500 hover:bg-red-500/10 focus:bg-red-500 focus:text-white">
-                    Log Out
+                  <DropdownMenuItem
+                    className="text-red-500 hover:bg-red-500/10 focus:bg-red-500 focus:text-white cursor-pointer"
+                    onClick={handleLogout}
+                    disabled={logoutMutation.isPending}
+                  >
+                    {logoutMutation.isPending ? "Logging out..." : "Log Out"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

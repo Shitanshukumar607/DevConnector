@@ -1,7 +1,10 @@
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
-import { useRegisterMutation } from "../../redux/auth/authApi";
+import { useMutation } from "@tanstack/react-query";
+import { registerUser } from "../../api/auth/auth";
+import type { AuthResponse, RegisterData } from "../../api/auth/types";
+import type { AxiosError } from "axios";
 
 type Inputs = {
   fullName: string;
@@ -11,18 +14,27 @@ type Inputs = {
 
 export default function Register() {
   const { register, handleSubmit } = useForm<Inputs>();
-  const [registerUser, { isLoading, error }] = useRegisterMutation();
 
   const navigate = useNavigate();
 
+  const {
+    mutateAsync: registerMutation,
+    isPending,
+    error,
+  } = useMutation<AuthResponse, AxiosError<{ message?: string }>, RegisterData>(
+    {
+      mutationFn: (data) => registerUser(data),
+      onSuccess: () => {
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
+      },
+    }
+  );
+
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     try {
-      await registerUser(data).unwrap();
-      // console.log("Registration successful!");
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 1000);
+      await registerMutation(data);
     } catch (e) {
       console.error("Sign up failed:", e);
     }
@@ -84,7 +96,7 @@ export default function Register() {
             />
           </div>
 
-          {isLoading && (
+          {isPending && (
             <p className="flex text-red-500 text-sm text-center mt-2 font-primary">
               Signing up...
             </p>
@@ -92,16 +104,17 @@ export default function Register() {
 
           {error && (
             <p className="flex text-red-500 text-sm text-center mt-2 font-primary">
-              {(error as any)?.data?.message ||
+              {error.response?.data?.message ||
+                error.message ||
                 "Sign up failed. Please try again."}
             </p>
           )}
           <button
             type="submit"
             className="w-full bg-white text-black font-semibold py-2 rounded-md hover:bg-gray-200 transition"
-            disabled={isLoading}
+            disabled={isPending}
           >
-            {isLoading ? "Signing up..." : "Register"}
+            {isPending ? "Signing up..." : "Register"}
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-gray-500">

@@ -107,6 +107,7 @@ const loginUser = async (req, res) => {
         success: true,
         message: "User logged in successfully",
         user: {
+          _id: user._id,
           fullName: user.fullName,
           email: user.email,
           username: user.username,
@@ -148,6 +149,7 @@ const getUserData = async (req, res) => {
     return res.status(200).json({
       success: true,
       user: {
+        _id: user._id,
         fullName: user.fullName,
         email: user.email,
         username: user.username,
@@ -214,4 +216,54 @@ const refreshAccessToken = async (req, res) => {
   }
 };
 
-export { registerUser, loginUser, getUserData, refreshAccessToken };
+const logoutUser = async (req, res) => {
+  try {
+    const token =
+      req.cookies?.refreshToken ||
+      req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized request",
+      });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(decodedToken?._id);
+
+    if (!user || user.refreshToken !== token) {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid refresh token",
+      });
+    }
+
+    // Clear refresh token from database
+    user.refreshToken = null;
+    await user.save({ validateBeforeSave: false });
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    };
+
+    return res
+      .status(200)
+      .clearCookie("refreshToken", options)
+      .clearCookie("accessToken", options)
+      .json({
+        success: true,
+        message: "User logged out successfully",
+      });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Error logging out user",
+      error: error.message,
+    });
+  }
+};
+
+export { registerUser, loginUser, getUserData, refreshAccessToken, logoutUser };

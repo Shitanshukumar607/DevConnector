@@ -3,11 +3,42 @@ import jwt from "jsonwebtoken";
 
 const getAllPosts = async (req, res) => {
   try {
-    const allPosts = await Post.find({})
-      .populate("user", "_id username")
-      .sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
 
-    return res.status(200).json({ success: true, data: allPosts });
+    const skip = (page - 1) * limit;
+
+    const searchFilter = search
+      ? {
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    const allPosts = await Post.find(searchFilter)
+      .populate("user", "_id username")
+      .populate("likes", "_id username")
+      .populate("dislikes", "_id username")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPosts = await Post.countDocuments(searchFilter);
+    const hasMore = skip + allPosts.length < totalPosts;
+
+    return res.status(200).json({
+      success: true,
+      data: allPosts,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalPosts / limit),
+        totalPosts,
+        hasMore,
+      },
+    });
   } catch (error) {
     console.error("Error fetching posts:", error);
     return res

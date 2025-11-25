@@ -2,7 +2,8 @@ import { MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { useParams } from "react-router";
-import { useAddCommentMutation } from "../../redux/posts/postApi";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addCommentToPost } from "../../api/posts";
 
 import refreshAccessToken from "../../utils/refreshAccessoken";
 import UnauthorizedPopup from "../Popup/Popup";
@@ -31,8 +32,18 @@ type Inputs = {
 const CommentSection = ({ postData }: { postData: PostData }) => {
   const [isCommenting, setIsCommenting] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const queryClient = useQueryClient();
 
-  const [addComment, { isLoading }] = useAddCommentMutation();
+  const { mutateAsync: addComment } = useMutation({
+    mutationFn: (payload: { postId: string; content: string }) =>
+      addCommentToPost(payload),
+    onSuccess: () => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: ["post", id] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
 
   const { id } = useParams<{ id: string }>();
 
@@ -46,7 +57,7 @@ const CommentSection = ({ postData }: { postData: PostData }) => {
         content: data.content,
       });
       reset();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error commenting on post:", err);
 
       const refreshed = await refreshAccessToken();
@@ -78,39 +89,44 @@ const CommentSection = ({ postData }: { postData: PostData }) => {
         />
       )}
 
-      <section className="bg-[#111111] rounded-2xl overflow-hidden">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            Comments {postData?.comments?.length}
+      <section className="bg-[#18181b] border border-white/10 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-8">
+          <h2 className="text-xl font-bold mb-8 flex items-center gap-3 text-white">
+            <div className="p-2 bg-[#27272a] rounded-lg border border-white/10">
+              <MessageSquare className="w-5 h-5 text-indigo-400" />
+            </div>
+            Comments{" "}
+            <span className="text-gray-500 text-lg font-normal">
+              ({postData?.comments?.length})
+            </span>
           </h2>
 
           {/* Add Comment */}
-          <div className="mb-8 p-4 bg-[#0a0a0a] rounded-xl">
-            <div className="flex gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
-                U
+          <div className="mb-10">
+            <form onSubmit={handleSubmit(onSubmit)} className="relative">
+              <textarea
+                {...register("content", { required: true })}
+                placeholder="What are your thoughts?"
+                className="w-full bg-[#27272a] text-white placeholder-gray-500 rounded-xl p-4 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border border-white/10 resize-y transition-all"
+              />
+              <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => reset()}
+                  className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCommenting}
+                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/20"
+                >
+                  {isCommenting ? "Posting..." : "Comment"}
+                </button>
               </div>
-              <div className="flex-1">
-                <textarea
-                  placeholder="What are your thoughts?"
-                  className="w-full px-4 py-3 bg-[#1a1a1a] text-white border border-[#2a2a2a] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
-                  rows={3}
-                  {...register("content", { required: true })}
-                />
-                <div className="flex justify-end mt-3">
-                  <button
-                    disabled={isCommenting || isLoading}
-                    className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-2 rounded-lg transition-colors font-medium"
-                    onClick={handleSubmit(onSubmit)}
-                  >
-                    Comment
-                  </button>
-                </div>
-              </div>
-            </div>
+            </form>
           </div>
-
           <div className="space-y-6">
             {postData.comments.length === 0
               ? "No comments yet."

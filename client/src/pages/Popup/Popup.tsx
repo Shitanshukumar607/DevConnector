@@ -28,7 +28,10 @@ export default function UnauthorizedPopup({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm font-primary"
-      onClick={onClose}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+      }}
     >
       <div
         onClick={(e) => e.stopPropagation()}
