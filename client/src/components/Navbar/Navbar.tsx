@@ -17,13 +17,16 @@ import fullIcon from "/full-icon.png";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import useAuthStore from "@/store/authStore";
 import useSearchStore from "@/store/searchStore";
+import { useLogout } from "@/api/auth/useAuth";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
+  const clearUser = useAuthStore((state) => state.clearUser);
   const { searchTerm, setSearchTerm } = useSearchStore();
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+  const logoutMutation = useLogout();
 
   // Debounce search term updates
   useEffect(() => {
@@ -41,6 +44,19 @@ export default function Navbar() {
   const clearSearch = () => {
     setLocalSearchTerm("");
     setSearchTerm("");
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      clearUser();
+      navigate("/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+      // Even if the server request fails, clear the local state
+      clearUser();
+      navigate("/login");
+    }
   };
 
   return (
@@ -134,8 +150,12 @@ export default function Navbar() {
                   <DropdownMenuItem>Billing</DropdownMenuItem>
                   <DropdownMenuItem>Team</DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-500 hover:bg-red-500/10 focus:bg-red-500 focus:text-white">
-                    Log Out
+                  <DropdownMenuItem 
+                    className="text-red-500 hover:bg-red-500/10 focus:bg-red-500 focus:text-white cursor-pointer"
+                    onClick={handleLogout}
+                    disabled={logoutMutation.isPending}
+                  >
+                    {logoutMutation.isPending ? "Logging out..." : "Log Out"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

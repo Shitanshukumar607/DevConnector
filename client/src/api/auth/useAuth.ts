@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
     getCurrentUser,
     loginUser,
+    logoutUser,
     refreshAccessToken,
     registerUser,
 } from "./auth";
@@ -33,6 +34,18 @@ const useRefreshAccessToken = () => {
     enabled: false,
   });
 };
+
+const useLogout = () => {
+  return useMutation({
+    mutationFn: () => logoutUser(),
+    onError: (error) => {
+      console.error("Logout failed:", error);
+    },
+    onSuccess: () => {
+      console.log("Logout successful");
+    },
+  });
+};
  
-export { useGetCurrentUser, useLogin, useRefreshAccessToken, useRegister };
+export { useGetCurrentUser, useLogin, useLogout, useRefreshAccessToken, useRegister };
 

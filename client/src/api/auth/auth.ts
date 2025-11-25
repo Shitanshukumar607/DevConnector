@@ -21,4 +21,9 @@ const refreshAccessToken = async (): Promise<AuthResponse> => {
   return res.data;
 };
 
-export { getCurrentUser, loginUser, refreshAccessToken, registerUser };
+const logoutUser = async (): Promise<{ success: boolean; message: string }> => {
+  const res = await axios.post("/users/logout");
+  return res.data;
+};
+
+export { getCurrentUser, loginUser, logoutUser, refreshAccessToken, registerUser };
