@@ -1,4 +1,10 @@
-import { MessageCircle, ThumbsUp, ThumbsDown, Share2 } from "lucide-react";
+import {
+  MessageCircle,
+  ThumbsUp,
+  ThumbsDown,
+  Share2,
+  Check,
+} from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { likePost, dislikePost } from "../../api/posts";
 import useAuthStore from "../../store/authStore";
@@ -24,6 +30,7 @@ const PostFooter = ({
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const [showPopup, setShowPopup] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const isLiked = user ? likes.some((like) => like._id === user._id) : false;
   const isDisliked = user
@@ -44,7 +51,7 @@ const PostFooter = ({
     },
   });
 
-  const onLikeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onLikeClick = () => {
     if (!user) {
       setShowPopup(true);
       return;
@@ -58,6 +65,30 @@ const PostFooter = ({
       return;
     }
     handleDislike();
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/posts/${postId}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Check out this post",
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy:", err);
+      }
+    }
   };
 
   return (
@@ -97,9 +128,14 @@ const PostFooter = ({
           <span>{comments.length}</span>
         </button>
 
-        <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#27272a] hover:bg-[#3f3f46] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all text-sm font-medium ml-auto">
-          <Share2 size={18} />
-          <span className="hidden sm:inline">Share</span>
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#27272a] hover:bg-[#3f3f46] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all text-sm font-medium ml-auto"
+        >
+          {isCopied ? <Check size={18} /> : <Share2 size={18} />}
+          <span className="hidden sm:inline">
+            {isCopied ? "Copied!" : "Share"}
+          </span>
         </button>
       </div>
     </>
