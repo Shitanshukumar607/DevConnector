@@ -5,6 +5,7 @@ import {
   Share2,
   ThumbsDown,
   ThumbsUp,
+  Check,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
@@ -51,6 +52,7 @@ export default function Post() {
   const [isDisliking, setIsDisliking] = useState<boolean>(false);
 
   const [showPopup, setShowPopup] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   const postData = data?.data;
   // console.log(postData, error, isLoading);
@@ -149,6 +151,30 @@ export default function Post() {
       }
     } finally {
       setIsDisliking(false);
+    }
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/posts/${id}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Check out this post",
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy:", err);
+      }
     }
   };
 
@@ -282,8 +308,15 @@ export default function Post() {
                           {postData.comments.length}
                         </span>
                       </button>
-                      <button className="p-2 rounded-full bg-[#27272a] border border-white/10 text-gray-400 hover:text-white transition-colors">
-                        <Share2 className="w-5 h-5" />
+                      <button
+                        onClick={handleShare}
+                        className="p-2 rounded-full bg-[#27272a] border border-white/10 text-gray-400 hover:text-white transition-colors"
+                      >
+                        {isCopied ? (
+                          <Check className="w-5 h-5" />
+                        ) : (
+                          <Share2 className="w-5 h-5" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -294,9 +327,16 @@ export default function Post() {
                       <MessageSquare className="w-5 h-5" />
                       <span>{postData.comments.length} Comments</span>
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#27272a] hover:bg-[#3f3f46] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all text-sm font-medium">
-                      <Share2 className="w-5 h-5" />
-                      <span>Share</span>
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#27272a] hover:bg-[#3f3f46] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all text-sm font-medium"
+                    >
+                      {isCopied ? (
+                        <Check className="w-5 h-5" />
+                      ) : (
+                        <Share2 className="w-5 h-5" />
+                      )}
+                      <span>{isCopied ? "Copied!" : "Share"}</span>
                     </button>
                     <button className="p-2 rounded-full hover:bg-[#27272a] text-gray-400 hover:text-white transition-colors ml-auto">
                       <MoreHorizontal className="w-5 h-5" />

@@ -1,24 +1,24 @@
+import { useLogout } from "@/api/auth/useAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import useAuthStore from "@/store/authStore";
+import useSearchStore from "@/store/searchStore";
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import {
   Bell,
   MessageSquare,
   Plus,
+  Search,
   UserRoundIcon,
   X,
-  Search,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 import fullIcon from "/full-icon.png";
-import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
-import useAuthStore from "@/store/authStore";
-import useSearchStore from "@/store/searchStore";
-import { useLogout } from "@/api/auth/useAuth";
-import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -118,12 +118,18 @@ export default function Navbar() {
         {/* Actions */}
         <div className="flex items-center gap-3">
           {/* Message Icon */}
-          <button className="p-2 rounded-full hover:bg-[#1a1a1a] text-gray-400 hover:text-white transition-colors">
+          <button
+            className="p-2 rounded-full hover:bg-[#1a1a1a] text-gray-400 hover:text-white transition-colors"
+            onClick={() => alert("messages not implemented")}
+          >
             <MessageSquare className="w-5 h-5" />
           </button>
 
           {/* Notification Icon */}
-          <button className="p-2 rounded-full hover:bg-[#1a1a1a] text-gray-400 hover:text-white transition-colors">
+          <button
+            className="p-2 rounded-full hover:bg-[#1a1a1a] text-gray-400 hover:text-white transition-colors"
+            onClick={() => alert("notifications not implemented")}
+          >
             <Bell className="w-5 h-5" />
           </button>
 
@@ -146,9 +152,13 @@ export default function Navbar() {
                   </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
-                  <DropdownMenuItem>Billing</DropdownMenuItem>
-                  <DropdownMenuItem>Team</DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => alert("Profile not implemented yet")}
+                  >
+                    Profile
+                  </DropdownMenuItem>
+                  {/* <DropdownMenuItem>Billing</DropdownMenuItem>
+                  <DropdownMenuItem>Team</DropdownMenuItem> */}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="text-red-500 hover:bg-red-500/10 focus:bg-red-500 focus:text-white cursor-pointer"
